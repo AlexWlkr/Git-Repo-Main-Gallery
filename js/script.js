@@ -1,3 +1,6 @@
+// Select the repos list
+const repoList = document.querySelector(".repo-list");
+
 // Select the overview div where the profile info will appear
 const overview = document.querySelector(".overview");
 
@@ -17,7 +20,7 @@ function displayUserInfo(data) {
   const userDiv = document.createElement("div");
   userDiv.classList.add("user-info");
 
-userDiv.innerHTML = `
+  userDiv.innerHTML = `
     <figure>
       <img alt="user avatar" src="${data.avatar_url}" />
     </figure>
@@ -28,8 +31,31 @@ userDiv.innerHTML = `
       <p><strong>Number of public repos:</strong> ${data.public_repos}</p>
     </div>
   `;
-overview.appendChild(userDiv);
+
+  overview.appendChild(userDiv);
+
+  // ✅ Correct place to fetch repos AFTER profile shows
+  getRepos();
 }
 
-// Call the fetch function when the page loads
+// Async function to fetch GitHub repos
+async function getRepos() {
+  const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
+  const repoData = await res.json();
+  console.log(repoData); // Check to make sure it's working
+
+  displayRepos(repoData); // Call the display function (defined next)
+}
+
+// Function to display each repo
+function displayRepos(repos) {
+  for (const repo of repos) {
+    const li = document.createElement("li");
+    li.classList.add("repo");
+    li.innerHTML = `<h3>${repo.name}</h3>`;
+    repoList.appendChild(li);
+  }
+}
+
+// ✅ Call the initial profile fetch when the page loads
 getUserInfo();
